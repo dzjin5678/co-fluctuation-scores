@@ -5,3 +5,5 @@ Computing edge-wise co-fluctuation amplitudes. For each pair of brain regions, t
 Amplitude-stratified co-fluctuation scoring. Timepoints are ranked by their global RSS values and partitioned into 20 bins (5 % of timepoints/bin). Within each bin, global and regional RSS values are averaged. The regional co-fluctuation score is defined as the ratio of regional RSS to global RSS from a specific bin. 
 
 <img src="pictures/cs.jpg" style="zoom: 25%;" />
+
+If you have any issues, please email De-Zhi Jin (dzjin@bupt.edu.cn) and Ye He (yehe@bupt.edu.cn), we are willing to help you to solve your problem. Happy researching!
