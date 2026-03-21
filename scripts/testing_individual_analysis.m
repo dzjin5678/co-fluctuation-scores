@@ -167,131 +167,131 @@ close;
 save(save_path_filename, "coefs");
 
 
-% %{
-%   weighted reconstruction of nFC.
-% %}
-% %% load bin-level ets data.
-% variable_name="ets_mean_bins_all";
-% session_names = ['REST1_LR'; 'REST1_RL'; 'REST2_LR'; 'REST2_RL'];
-% rest1_lr = load(['../outputs_bins/HCP/bins_', num2str(num_of_bins), '_' pipeline '_scan_' session_names(1, :) '_' atlas '_hfd_0_regressCofounds_' num2str(regressCofounds) '.mat'], variable_name);
-% rest1_rl = load(['../outputs_bins/HCP/bins_', num2str(num_of_bins), '_' pipeline '_scan_' session_names(2, :) '_' atlas '_hfd_0_regressCofounds_' num2str(regressCofounds) '.mat'], variable_name);
-% rest2_lr = load(['../outputs_bins/HCP/bins_', num2str(num_of_bins), '_' pipeline '_scan_' session_names(3, :) '_' atlas '_hfd_0_regressCofounds_' num2str(regressCofounds) '.mat'], variable_name);
-% rest2_rl = load(['../outputs_bins/HCP/bins_', num2str(num_of_bins), '_' pipeline '_scan_' session_names(4, :) '_' atlas '_hfd_0_regressCofounds_' num2str(regressCofounds) '.mat'], variable_name);
-% % organize ets_mean_bin data.
-% ets_mean_bin_all = nan(4, 100, 20, 19900);
-% ets_mean_bin_all(1, :, :, :) = rest1_lr.(variable_name);
-% ets_mean_bin_all(2, :, :, :) = rest1_rl.(variable_name);
-% ets_mean_bin_all(3, :, :, :) = rest2_lr.(variable_name);
-% ets_mean_bin_all(4, :, :, :) = rest2_rl.(variable_name);
-% for subj_i=1:100
-%     for ses_i=1:4
-%         if is_physio_exists(subj_i, ses_i)==0
-%             ets_mean_bin_all(ses_i, subj_i, :, :)=NaN;
-%         end
-%     end
-% end
-% ets_mean_bin_avg4Sess = squeeze(mean(ets_mean_bin_all, 1, 'omitmissing'));
-% 
-% file_name=strcat("hcp_all_sess_spearman_cs_grad1_axis_raw_bins_", num2str(num_of_bins), "_bin_hcp_", pipeline, "_scan_", atlas, "_hfd_0_ind");
-% save_path_filename = strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans/", file_name);
-% load(save_path_filename, "coefs");
-% 
-% for subj_i=1:100
-%     for bin_i=1:num_of_bins
-%         ets_mean_bin_avg4Sess(subj_i, bin_i, :) = abs(coefs(subj_i, bin_i)).*ets_mean_bin_avg4Sess(subj_i, bin_i, :);
-%     end
-% end
-% ets_mean_bin_avg4Sess = squeeze(mean(ets_mean_bin_avg4Sess, 1, 'omitmissing'));
-% ets_mean_bin_avg4Sess = squeeze(mean(ets_mean_bin_avg4Sess, 1, 'omitmissing'));
-% 
-% % Index of upper triabgle in FC matrix.
-% [u,v] = find(triu(ones(num_of_rois),1));
-% idx = (v - 1)*num_of_rois + u;
-% weighted_reconstruct_nfc = zeros(200, 200);
-% weighted_reconstruct_nfc(idx) = ets_mean_bin_avg4Sess;
-% weighted_reconstruct_nfc = weighted_reconstruct_nfc + weighted_reconstruct_nfc.';
-% 
-% plot_nfc_schaefer200(weighted_reconstruct_nfc, lab17to8, idxsort, net17to8, 200, 1, -0.4, 0.4);
-% print(gcf, '-dmeta', strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans/hcp3t_weighted_reconstruct_nfc"));
-% print(gcf, '-dpng', strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans/hcp3t_weighted_reconstruct_nfc"));
-% close;
-% 
-% 
-% %% cal and plot grad.
-% grad = GradientMaps('kernel','cs','approach', 'dm');
-% grad = grad.fit(weighted_reconstruct_nfc, 'Sparsity', 90);
-% func_gradient = grad.gradients{1}(:, 1:10);
-% variance_explained = grad.lambda{1};
-% grad_1=func_gradient(:, 2);
-% grad_1=zscore(grad_1);
-% 
-% X = ft_read_cifti(char(strcat("../../atlas/hcp_fslr32k_cifti/Schaefer2018_200Parcels_17Networks_order.dlabel.nii")), 'mpname', 'array');
-% vertex_to_roi = X.parcels;
-% vertex_to_roi(vertex_to_roi==0)=NaN;
-% 
-% % plot grad.
-% plot_data = vertex_to_roi;
-% for roi_i=1:200
-%     plot_data(plot_data==roi_i)=grad_1(roi_i);
-% end
-% save_dir=strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans/");
-% save_filename = "hcp3t_weighted_reconstruct_nfc_grad_2";
-% plot_my_fslr32k_v_parcel(plot_data, turbo, strcat(save_dir, "/", save_filename));
-% save(strcat(save_dir, "/hcp3t_weighted_reconstruct_nfc_grads"), "variance_explained", "func_gradient", "weighted_reconstruct_nfc");
-% 
-% 
-% %% plot hcp3t group nfc.
-% hcp_group_nfc = load("../../func_gradient/hcp_results/parcel_nfc_grad/proc_regress_fix_ts_mat_schaefer200_hfd_0_nfc_grad.mat");
-% hcp_group_nfc = hcp_group_nfc.nfc_group;
-% hcp_group_nfc = tanh(hcp_group_nfc);
-% plot_nfc_schaefer200(hcp_group_nfc, lab17to8, idxsort, net17to8, 200, 1, -1, 1);
-% print(gcf, '-dmeta', strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans/hcp3t_c_nfc"));
-% print(gcf, '-dpng', strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans/hcp3t_hcp_group_nfc_nfc"));
-% close;
-% 
-% 
-% %% corr nfc.
-% [u,v] = find(triu(ones(num_of_rois),1));
-% idx = (v - 1)*num_of_rois + u;
-% [coef, pval] = corr(weighted_reconstruct_nfc(idx), hcp_group_nfc(idx), "type","Spearman");
-% x = weighted_reconstruct_nfc(idx);
-% y = hcp_group_nfc(idx);
-% figure("Position", [100 100 360 360]);
-% scatter(x, y, 40, 'filled', 'MarkerFaceAlpha',0.4);
-% hold on
-% pfit = polyfit(x,y,1);
-% x_fit = linspace(min(x),max(x),100);
-% y_fit = polyval(pfit,x_fit);
-% plot(x_fit,y_fit,'r','LineWidth',2);
-% ax=gca;hold on;
-% ax.FontSize=15;
-% set(gca,'Box','off');
-% save_filename=strcat("hcp3t_nfc_reconstructed_nfc");
-% save_path=strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans");
-% print(gcf, '-dpng', '-r1000', strcat(save_path, "/", save_filename));
-% print(gcf, '-dmeta', strcat(save_path, "/", save_filename));
-% close;
-% 
-% 
-% %% corr grad.
-% hcp_group_grads = load("../../func_gradient/hcp_results/parcel_nfc_grad/proc_regress_fix_ts_mat_schaefer200_hfd_0_nfc_grad.mat");
-% grad_i=1;
-% x = zscore(func_gradient(:, grad_i));
-% y = zscore(hcp_group_grads.func_gradient(:, grad_i));
-% [coef, pval] = corr(x, y, "type","Spearman");
-% figure("Position", [100 100 360 360]);
-% scatter(x, y, 40, 'filled', 'MarkerFaceAlpha',0.4);
-% hold on
-% pfit = polyfit(x,y,1);
-% x_fit = linspace(min(x),max(x),100);
-% y_fit = polyval(pfit,x_fit);
-% plot(x_fit,y_fit,'r','LineWidth',2);
-% ax=gca;hold on;
-% ax.FontSize=15;
-% set(gca,'Box','off');
-% save_filename=strcat("hcp3t_corr_grad_", num2str(grad_i));
-% save_path=strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans");
-% print(gcf, '-dpng', '-r1000', strcat(save_path, "/", save_filename));
-% print(gcf, '-dmeta', strcat(save_path, "/", save_filename));
-% close;
+%{
+  weighted reconstruction of nFC.
+%}
+%% load bin-level ets data.
+variable_name="ets_mean_bins_all";
+session_names = ['REST1_LR'; 'REST1_RL'; 'REST2_LR'; 'REST2_RL'];
+rest1_lr = load(['../outputs_bins/HCP/bins_', num2str(num_of_bins), '_' pipeline '_scan_' session_names(1, :) '_' atlas '_hfd_0_regressCofounds_' num2str(regressCofounds) '.mat'], variable_name);
+rest1_rl = load(['../outputs_bins/HCP/bins_', num2str(num_of_bins), '_' pipeline '_scan_' session_names(2, :) '_' atlas '_hfd_0_regressCofounds_' num2str(regressCofounds) '.mat'], variable_name);
+rest2_lr = load(['../outputs_bins/HCP/bins_', num2str(num_of_bins), '_' pipeline '_scan_' session_names(3, :) '_' atlas '_hfd_0_regressCofounds_' num2str(regressCofounds) '.mat'], variable_name);
+rest2_rl = load(['../outputs_bins/HCP/bins_', num2str(num_of_bins), '_' pipeline '_scan_' session_names(4, :) '_' atlas '_hfd_0_regressCofounds_' num2str(regressCofounds) '.mat'], variable_name);
+% organize ets_mean_bin data.
+ets_mean_bin_all = nan(4, 100, 20, 19900);
+ets_mean_bin_all(1, :, :, :) = rest1_lr.(variable_name);
+ets_mean_bin_all(2, :, :, :) = rest1_rl.(variable_name);
+ets_mean_bin_all(3, :, :, :) = rest2_lr.(variable_name);
+ets_mean_bin_all(4, :, :, :) = rest2_rl.(variable_name);
+for subj_i=1:100
+    for ses_i=1:4
+        if is_physio_exists(subj_i, ses_i)==0
+            ets_mean_bin_all(ses_i, subj_i, :, :)=NaN;
+        end
+    end
+end
+ets_mean_bin_avg4Sess = squeeze(mean(ets_mean_bin_all, 1, 'omitmissing'));
+
+file_name=strcat("hcp_all_sess_spearman_cs_grad1_axis_raw_bins_", num2str(num_of_bins), "_bin_hcp_", pipeline, "_scan_", atlas, "_hfd_0_ind");
+save_path_filename = strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans/", file_name);
+load(save_path_filename, "coefs");
+
+for subj_i=1:100
+    for bin_i=1:num_of_bins
+        ets_mean_bin_avg4Sess(subj_i, bin_i, :) = abs(coefs(subj_i, bin_i)).*ets_mean_bin_avg4Sess(subj_i, bin_i, :);
+    end
+end
+ets_mean_bin_avg4Sess = squeeze(mean(ets_mean_bin_avg4Sess, 1, 'omitmissing'));
+ets_mean_bin_avg4Sess = squeeze(mean(ets_mean_bin_avg4Sess, 1, 'omitmissing'));
+
+% Index of upper triabgle in FC matrix.
+[u,v] = find(triu(ones(num_of_rois),1));
+idx = (v - 1)*num_of_rois + u;
+weighted_reconstruct_nfc = zeros(200, 200);
+weighted_reconstruct_nfc(idx) = ets_mean_bin_avg4Sess;
+weighted_reconstruct_nfc = weighted_reconstruct_nfc + weighted_reconstruct_nfc.';
+
+plot_nfc_schaefer200(weighted_reconstruct_nfc, lab17to8, idxsort, net17to8, 200, 1, -0.4, 0.4);
+print(gcf, '-dmeta', strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans/hcp3t_weighted_reconstruct_nfc"));
+print(gcf, '-dpng', strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans/hcp3t_weighted_reconstruct_nfc"));
+close;
+
+
+%% cal and plot grad.
+grad = GradientMaps('kernel','cs','approach', 'dm');
+grad = grad.fit(weighted_reconstruct_nfc, 'Sparsity', 90);
+func_gradient = grad.gradients{1}(:, 1:10);
+variance_explained = grad.lambda{1};
+grad_1=func_gradient(:, 2);
+grad_1=zscore(grad_1);
+
+X = ft_read_cifti(char(strcat("../../atlas/hcp_fslr32k_cifti/Schaefer2018_200Parcels_17Networks_order.dlabel.nii")), 'mpname', 'array');
+vertex_to_roi = X.parcels;
+vertex_to_roi(vertex_to_roi==0)=NaN;
+
+% plot grad.
+plot_data = vertex_to_roi;
+for roi_i=1:200
+    plot_data(plot_data==roi_i)=grad_1(roi_i);
+end
+save_dir=strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans/");
+save_filename = "hcp3t_weighted_reconstruct_nfc_grad_2";
+plot_my_fslr32k_v_parcel(plot_data, turbo, strcat(save_dir, "/", save_filename));
+save(strcat(save_dir, "/hcp3t_weighted_reconstruct_nfc_grads"), "variance_explained", "func_gradient", "weighted_reconstruct_nfc");
+
+
+%% plot hcp3t group nfc.
+hcp_group_nfc = load("../../func_gradient/hcp_results/parcel_nfc_grad/proc_regress_fix_ts_mat_schaefer200_hfd_0_nfc_grad.mat");
+hcp_group_nfc = hcp_group_nfc.nfc_group;
+hcp_group_nfc = tanh(hcp_group_nfc);
+plot_nfc_schaefer200(hcp_group_nfc, lab17to8, idxsort, net17to8, 200, 1, -1, 1);
+print(gcf, '-dmeta', strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans/hcp3t_c_nfc"));
+print(gcf, '-dpng', strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans/hcp3t_hcp_group_nfc_nfc"));
+close;
+
+
+%% corr nfc.
+[u,v] = find(triu(ones(num_of_rois),1));
+idx = (v - 1)*num_of_rois + u;
+[coef, pval] = corr(weighted_reconstruct_nfc(idx), hcp_group_nfc(idx), "type","Spearman");
+x = weighted_reconstruct_nfc(idx);
+y = hcp_group_nfc(idx);
+figure("Position", [100 100 360 360]);
+scatter(x, y, 40, 'filled', 'MarkerFaceAlpha',0.4);
+hold on
+pfit = polyfit(x,y,1);
+x_fit = linspace(min(x),max(x),100);
+y_fit = polyval(pfit,x_fit);
+plot(x_fit,y_fit,'r','LineWidth',2);
+ax=gca;hold on;
+ax.FontSize=15;
+set(gca,'Box','off');
+save_filename=strcat("hcp3t_nfc_reconstructed_nfc");
+save_path=strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans");
+print(gcf, '-dpng', '-r1000', strcat(save_path, "/", save_filename));
+print(gcf, '-dmeta', strcat(save_path, "/", save_filename));
+close;
+
+
+%% corr grad.
+hcp_group_grads = load("../../func_gradient/hcp_results/parcel_nfc_grad/proc_regress_fix_ts_mat_schaefer200_hfd_0_nfc_grad.mat");
+grad_i=1;
+x = zscore(func_gradient(:, grad_i));
+y = zscore(hcp_group_grads.func_gradient(:, grad_i));
+[coef, pval] = corr(x, y, "type","Spearman");
+figure("Position", [100 100 360 360]);
+scatter(x, y, 40, 'filled', 'MarkerFaceAlpha',0.4);
+hold on
+pfit = polyfit(x,y,1);
+x_fit = linspace(min(x),max(x),100);
+y_fit = polyval(pfit,x_fit);
+plot(x_fit,y_fit,'r','LineWidth',2);
+ax=gca;hold on;
+ax.FontSize=15;
+set(gca,'Box','off');
+save_filename=strcat("hcp3t_corr_grad_", num2str(grad_i));
+save_path=strcat("../results_bins/DRIVER/HCP/1_region_level_ratioOfMeans");
+print(gcf, '-dpng', '-r1000', strcat(save_path, "/", save_filename));
+print(gcf, '-dmeta', strcat(save_path, "/", save_filename));
+close;
 

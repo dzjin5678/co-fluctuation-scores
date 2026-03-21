@@ -46,7 +46,9 @@ Compute CS and its variants:
 
 ------
 
-## 📊 Analysis Scripts (`scripts/`)
+
+
+## Analysis Scripts (`scripts/`)
 
 ### 🔹 Core Analyses
 
@@ -58,57 +60,61 @@ Compute CS and its variants:
   - Local vs global RSS
   - Event-triggered analysis
   - Lead–lag relationships
-- `testing_phase_random.m`
+- `testing_phase_random.m` and `bins_hcp_co_fluc_analysis_phase_shift_1.m`
   - Phase-randomization control analysis
 - `testing_individual_analysis.m`
-  - Individual-level CS analysis
+  - Individual-level co-fluctuation score analysis
+  - weighted reconstruction of functional connectivity and gradient
 
 ------
 
 ### 🔹 Noise & Physiological Confounds
 
-- `testing_tSNR.m`
-  - Effect of tSNR on CS
 - `testing_noise.m`, `testing_hcp3t_gsr_fd_hr_br_rss.m`, `plot_noise.R`
   - Relationship between global RSS and:
     - Head motion (FD)
     - Global signal (GS)
-    - Respiratory variability (RV)
+    - Respiratory variation (RV)
     - Heart rate variability (HRV)
+- `testing_ets_rss_physio_phase_mapping.m` and `ets_rss_physio_phase_mapping.m`
+  - Phase-locking analysis between global RSS and physiological signals
 - `testing_covariates.m`
   - GAM comparison:
     - Partial covariates: sex, mean FD
     - Full covariates: age, sex, tSNR, mean FD, mean GS, mean RV, mean HRV
-- `testing_ets_rss_physio_phase_mapping.m`
-  - Phase-locking with physiological signals
+- `testing_tSNR.m`
+  - Effect of tSNR on co-fluctuation score
 
 ------
 
 ### 🔹 GAM Modeling
 
-- `GAMs_fixed.R`
-  - Fixed & mixed-effect GAM definitions
+- `GAMs_fixed.R` and `GAMs_mixed.R`
+  - Fixed and mixed-effect GAM definitions
 - Model fitting:
   - `fit_GAMs_fixed_schaefer200x17.R`
   - `fit_GAMs_fixed_schaefer400x17.R`
   - `fit_GAMs_fixed_glasser360.R`
   - `fit_GAMs_mixed_schaefer200x17.R`
 - Visualization:
-  - `plot_GAMs_fixed_results.R`
-  - `plot_CS_GAM_results.R`
+  - `plot_GAMs_fixed_results_schaefer200x17.R`
+  - `plot_GAMs_fixed_results_schaefer400x17.R`
+  - `plot_GAMs_fixed_results_glasser360.R`
+  - `plot_GAMs_mixed_results.R`
+
 - `testing_GAMs_linear_nonlinear.m`, `testing_GAMs_linear_nonlinear.R`
-  - Linear vs nonlinear GAM comparison (identify regions with significant differences)
+  - Linear vs nonlinear GAM comparison (identify regions with significant differences between linear and non-linear models)
 
 ------
 
-### 🔹 Neurobiological Associations
+### 🔹 Neuro-biological Associations
 
 - `extract_myelin_pvalb_sst_map.m`
   - Extract:
-    - Myelin maps (HCP)
-    - PVALB–SST maps (AHBA)
+    - Myelin maps (from HCP dataset, https://balsa.wustl.edu/study/P2DmK)
+    - PVALB–SST maps (from AHBA dataset, https://abagen.readthedocs.io/en/stable/user_guide/download.html)
 - `plot_mechanism_map.R`, `testing_gam_model.m`
-  - Associate GAM summaries with:
+  - Associate two neurological measures with GAM summaries:
     - Partial R²
     - Mean second derivative
     - Mean curvature
