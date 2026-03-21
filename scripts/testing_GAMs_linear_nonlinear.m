@@ -31,7 +31,7 @@ cb = hot;
 cb = cb(20:256, :);
 
 
-%% plot grad (sig).
+%% plot (sig).
 plot_data = vertex_to_roi;
 for roi_i=1:200
     plot_data(plot_data==roi_i)=sig_brain_map(roi_i);
@@ -41,7 +41,7 @@ save_filename = "gam_nonlinear_linear_compare_high_fd-0_num_of_bins-20_atlas-sch
 plot_my_fslr32k_v_parcel(plot_data, cb, strcat(save_dir, "/", save_filename));
 
 
-%% plot grad (nosig).
+%% plot (nosig).
 plot_data = vertex_to_roi;
 for roi_i=1:200
     plot_data(plot_data==roi_i)=not_sig_brain_map(roi_i);
