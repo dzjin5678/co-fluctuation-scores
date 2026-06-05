@@ -91,6 +91,7 @@ Compute CS and its variants:
 
 - `GAMs_fixed.R` and `GAMs_mixed.R`
   - Fixed and mixed-effect GAM definitions
+  - k check and AIC
 - Model fitting:
   - `fit_GAMs_fixed_schaefer200x17.R`
   - `fit_GAMs_fixed_schaefer400x17.R`
