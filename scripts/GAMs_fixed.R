@@ -1,8 +1,21 @@
+library(dplyr)
+library(R.matlab)
+library(ggsegGlasser)
+library(ggsegSchaefer)
+library(ggseg)
+library(ggplot2)
+library(ggseg3d)
+library(cifti)
+library(stringr)
+library(factoextra)
+library(matrixStats)
+library(scales)
+library(Hmisc)
 library(tidyr)
+library(cocor)
 library(mgcv)
 library(gratia)
 library(tidyverse)
-library(dplyr)
 library(numDeriv)
 
 
@@ -22,7 +35,13 @@ gam.fit.smooth <- function(region, smooth_var, covariates, knots, set_fx = FALSE
   modelformula <- as.formula(sprintf("%s ~ s(%s, k = %s, fx = %s) + %s", region, smooth_var, knots, set_fx, covariates))
   gam.model <- gam(modelformula, method = "REML", data = gam.data)
   gam.results <- summary(gam.model)
-  
+  summary(gam.model)
+  p.pv <- gam.results$p.pv
+  p.t <- gam.results$p.t
+  gam_check_k <- k.check(gam.model)
+  aic_values <- AIC(gam.model)
+  # browser()
+
   #GAM derivatives
   #Get derivatives of the smooth function using finite differences
   derv <- derivatives(gam.model, term = sprintf('s(%s)',smooth_var), interval = "simultaneous", unconditional = F) #derivative at 200 indices of smooth_var with a simultaneous CI
@@ -125,9 +144,10 @@ gam.fit.smooth <- function(region, smooth_var, covariates, knots, set_fx = FALSE
                         mean.curvature, mean.derivative_2l)
   stats.results <- cbind(parcel, gam.smooth.F, gam.smooth.pvalue, partialRsq, anova.smooth.pvalue)
   if(stats_only == TRUE)
-    return(stats.results)
+    return(list(results=stats.results, p.pv=p.pv, p.t=p.t, gam_check_k=gam_check_k, aic_values=aic_values))
   if(stats_only == FALSE)
-    return(full.results)
+    # return(full.results)
+    return(list(results=full.results, p.pv=p.pv, p.t=p.t, gam_check_k=gam_check_k, aic_values=aic_values))
 }
 
 
